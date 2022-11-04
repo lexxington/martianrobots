@@ -1,28 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using MartianRobots.Abstraction;
 using MartianRobots.Model.Exceptions;
 
 namespace MartianRobots.Model
 {
-	public class Grid
+	public class Grid : IGrid
 	{
-		public int Width { get; }
-		public int Height { get; }
 		private readonly HashSet<Point> m_scents = new HashSet<Point>();
+		private readonly List<Robot> _robots = new List<Robot>();
+
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+
+		public Grid() { }
 
 		public Grid(string upperRightCoordinates)
 		{
-			if (String.IsNullOrWhiteSpace(upperRightCoordinates))
-				throw new ArgumentException("Upper-right coordinates of the rectangular world not specified", nameof(upperRightCoordinates));
-
-			string[] splits = upperRightCoordinates.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-
-			if (splits.Length != 2)
-				throw new ArgumentException("Invalid format of upper-right coordinates", nameof(upperRightCoordinates));
-
-			Width = ParseCoordinate(splits[0], "X") + 1;
-			Height = ParseCoordinate(splits[1], "Y") + 1;
+			Init(upperRightCoordinates);
 		}
 
 		public Point MoveRobot(Point current, Point delta)
@@ -51,5 +48,36 @@ namespace MartianRobots.Model
 
 			return number;
 		}
-	}
+
+        public void Init(string upperRightCoordinates)
+        {
+			if (String.IsNullOrWhiteSpace(upperRightCoordinates))
+				throw new ArgumentException("Upper-right coordinates of the rectangular world not specified", nameof(upperRightCoordinates));
+
+			string[] splits = upperRightCoordinates.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+			if (splits.Length != 2)
+				throw new ArgumentException("Invalid format of upper-right coordinates", nameof(upperRightCoordinates));
+
+			Width = ParseCoordinate(splits[0], "X") + 1;
+			Height = ParseCoordinate(splits[1], "Y") + 1;
+		}
+
+        public void AddRobot(string initialState)
+        {
+			_robots.Add(new Robot(this, initialState));
+        }
+
+        public void DoInstructions(string instructions)
+        {
+			_robots.Last().Do(instructions);
+        }
+
+        public IEnumerable<string> GetState()
+        {
+			return _robots
+				.Select(r => r.GetCurrentState())
+				.ToList();
+		}
+    }
 }

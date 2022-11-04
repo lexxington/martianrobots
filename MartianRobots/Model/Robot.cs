@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
+﻿using MartianRobots.Abstraction;
 using MartianRobots.Model.Enums;
 using MartianRobots.Model.Exceptions;
+using System;
+using System.Drawing;
 
 namespace MartianRobots.Model
 {
-	public class Robot
+    public class Robot
 	{
-		private readonly Grid m_grid;
+		private readonly IGrid m_grid;
 		public Point Position { get; private set; }
 		public Orientation Orientation { get; private set; }
 		public bool Lost { get; private set; }
 
-		public Robot(Grid grid, string initialState)
+		public Robot(IGrid grid, string initialState)
 		{
 			m_grid = grid ?? throw new ArgumentNullException(nameof(grid));
 
