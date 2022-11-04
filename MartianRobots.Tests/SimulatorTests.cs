@@ -1,19 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MartianRobots.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
-using System.Text;
-using MartianRobots.Model;
 using Xunit;
 
 namespace MartianRobots.Tests
 {
-	public class SimulatorTests
+    public class SimulatorTests
 	{
+		private readonly ISimulator _simulator;
+
+		public SimulatorTests()
+		{
+			var serviceProvider = new ServiceCollection()
+				.AddSingleton<ISimulator, Simulator>()
+				.BuildServiceProvider();
+
+			_simulator = serviceProvider.GetRequiredService<ISimulator>();
+		}
+
 		[Fact]
 		public void TestInputOutput()
 		{
-			Simulator simulator = new Simulator();
-			simulator.AddInstructionRange(new[]
+			_simulator.AddInstructionRange(new[]
 			{
 				"5 3",
 				"1 1 E",
@@ -24,15 +33,14 @@ namespace MartianRobots.Tests
 				"LLFFFLFLFL"
 			});
 
-			string expected = String.Join(Environment.NewLine, "1 1 E", "3 3 N LOST", "2 3 S");
-			Assert.Equal(expected, String.Join(Environment.NewLine, simulator.GetOutput()));
+			var expected = string.Join(Environment.NewLine, "1 1 E", "3 3 N LOST", "2 3 S");
+			Assert.Equal(expected, string.Join(Environment.NewLine, _simulator.GetOutput()));
 		}
 
 		[Fact]
 		public void TestMininalGrid()
 		{
-			Simulator simulator = new Simulator();
-			simulator.AddInstructionRange(new[]
+			_simulator.AddInstructionRange(new[]
 			{
 				"0 0",
 				"0 0 E",
@@ -41,8 +49,8 @@ namespace MartianRobots.Tests
 				"FRFLFFRFL"
 			});
 
-			string expected = String.Join(Environment.NewLine, "0 0 E LOST", "0 0 N");
-			Assert.Equal(expected, String.Join(Environment.NewLine, simulator.GetOutput()));
+			var expected = string.Join(Environment.NewLine, "0 0 E LOST", "0 0 N");
+			Assert.Equal(expected, string.Join(Environment.NewLine, _simulator.GetOutput()));
 		}
 
 		[Theory]
@@ -52,8 +60,7 @@ namespace MartianRobots.Tests
 		[InlineData("5 3", "3 4 N", "FRRFLLFFRRFLL")]
 		public void ShouldFailWithException(params string[] input)
 		{
-			Simulator simulator = new Simulator();
-			Assert.ThrowsAny<Exception>(() => simulator.AddInstructionRange(input));
+			Assert.ThrowsAny<Exception>(() => _simulator.AddInstructionRange(input));
 		}
 
 		[Theory]
@@ -63,8 +70,7 @@ namespace MartianRobots.Tests
 		[InlineData("1 1 W", "FF")]
 		public void ShouldntLostSecondTime(string initialState, string command)
 		{
-			Simulator simulator = new Simulator();
-			simulator.AddInstructionRange(new[]
+			_simulator.AddInstructionRange(new[]
 			{
 				"2 2",
 				initialState,
@@ -73,7 +79,7 @@ namespace MartianRobots.Tests
 				command
 			});
 
-			Assert.DoesNotContain("LOST", simulator.GetOutput().Last());
+			Assert.DoesNotContain("LOST", _simulator.GetOutput().Last());
 		}
 	}
 }
