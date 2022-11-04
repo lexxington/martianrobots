@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using MartianRobots.Abstraction;
 using MartianRobots.Model;
 using MartianRobots.Model.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MartianRobots
 {
-	public class Simulator
+    public class Simulator : ISimulator
 	{
 		private Grid m_grid;
 		private SimulatorState m_state = SimulatorState.WaitForInit;
