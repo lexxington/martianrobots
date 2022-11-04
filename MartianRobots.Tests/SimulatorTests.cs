@@ -1,5 +1,7 @@
 ﻿using MartianRobots.Abstraction;
+using MartianRobots.Model;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using Xunit;
@@ -13,7 +15,9 @@ namespace MartianRobots.Tests
 		public SimulatorTests()
 		{
 			var serviceProvider = new ServiceCollection()
-				.AddSingleton<ISimulator, Simulator>()
+				.AddSingleton<ISimulator, SimulatorV2>()
+				.AddSingleton<IGrid, Grid>()
+				.AddLogging(logging => { logging.AddConsole(); })
 				.BuildServiceProvider();
 
 			_simulator = serviceProvider.GetRequiredService<ISimulator>();
