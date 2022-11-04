@@ -15,7 +15,17 @@ namespace MartianRobots.Tests
 		public SimulatorTests()
 		{
 			var serviceProvider = new ServiceCollection()
-				.AddSingleton<ISimulator, SimulatorV2>()
+				.AddSingleton<ISimulator>(sp =>
+				{
+					//var ldClientFactory = sp.GetRequiredService<ILdClientFactory>();
+					//using var ldClient = ldClientFactory.CreateClient();
+					//var v2Enabled = ldClient.IsFlagEnabled(FeatureFlag.Notifications.SimulatorV2, default);
+					var v2Enabled = true;
+
+					return v2Enabled
+						? new SimulatorV2(sp.GetRequiredService<IGrid>(), sp.GetRequiredService<ILogger<SimulatorV2>>())
+						: new Simulator() as ISimulator;
+				})
 				.AddSingleton<IGrid, Grid>()
 				.AddLogging(logging => { logging.AddConsole(); })
 				.BuildServiceProvider();
